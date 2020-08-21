@@ -1,0 +1,87 @@
+# CNWAN deployment configuration file
+#
+# We could have used the JSON format instead, but this allows comments and is
+# somewhat more human-readable
+
+
+# PLEASE REPLACE <GCP_PROJECT>, <GCP_ZONE> and <GCP_ZONE_SERVICE> WITH THE
+# APPROPRIATE VALUES !!!
+
+local:
+    tempdir: /tmp
+gcp:
+    project: <GCP_PROJECT>
+    zone: <GCP_ZONE>
+    resource_label: cnwan-demo
+    ntp: metadata.google.internal
+    domain: gcp.en-app.net
+    networks:
+        - name: cnwan-mgmt
+          prefix: 10.1.1.0/24
+          gateway: 10.1.1.1
+        - name: cnwan-ctrl
+          prefix: 10.2.1.0/24
+          gateway: 10.2.1.1
+        - name: cnwan-public-internet
+          prefix: 10.3.1.0/24
+          gateway: 10.3.1.1
+        - name: cnwan-biz-internet
+          prefix: 10.4.1.0/24
+          gateway: 10.4.1.1
+        - name: cnwan-streaming-client
+          prefix: 10.5.1.0/24
+          gateway: 10.5.1.1
+        - name: cnwan-streaming-service
+          prefix: 10.6.1.0/24
+          gateway: 10.6.1.1
+sdwan:
+    version: 20.1.12
+    iosxe_version: 17.02.01v
+    # Supported: qcow2 or ova, for cEdge only qcow2 is supported
+    image_ext: qcow2
+    # These paths are relative to current user's home directory
+    image_path: Kit/Viptela
+    cert_path: .cloud-networking-automation
+    # If you change any of the below two lines, delete the above directory
+    org_name: CNWAN
+    root_ca_subject: /C=US/ST=California/L=San Jose/O=Cisco/OU=IBNG/CN=cnwan.io/emailAddress=cnwan@cisco.com
+    geolocation:
+        latitude: 37.419869
+        longitude: -121.919444
+    vmanage:
+        vm_name: cnwan-vmanage
+        vm_description: Viptela vManage VM
+        site_id: 100
+        system_ip: 192.168.127.11
+        mgmt_static_ip: 10.1.1.11
+        ctrl_static_ip: 10.2.1.11
+    vbond:
+        vm_name: cnwan-vbond
+        vm_description: Viptela vBond VM
+        site_id: 100
+        system_ip: 192.168.127.12
+        mgmt_static_ip: 10.1.1.12
+        ctrl_static_ip: 10.2.1.12
+    vsmart:
+        vm_name: cnwan-vsmart
+        vm_description: Viptela vSmart VM
+        site_id: 100
+        system_ip: 192.168.127.13
+        mgmt_static_ip: 10.1.1.13
+        ctrl_static_ip: 10.2.1.13
+    vedge:
+        - vm_name: cnwan-vedge-streaming-client
+          vm_description: Viptela vEdge for the client side
+          site_id: 100
+          zone: <GCP_ZONE>
+          system_ip: 192.168.127.21
+          mgmt_static_ip: 10.1.1.21
+          service_static_ip: 10.5.1.11
+        - vm_name: cnwan-vedge-streaming-service
+          vm_description: Viptela vEdge for the streaming video service side
+          site_id: 200
+          # TODO  Different zones not supported yet
+          zone: <GCP_ZONE_SERVICE>
+          system_ip: 192.168.127.22
+          mgmt_static_ip: 10.1.1.22
+          service_static_ip: 10.6.1.11

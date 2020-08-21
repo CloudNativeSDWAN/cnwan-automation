@@ -1,0 +1,18 @@
+#cloud-config
+ssh_pwauth: yes
+users:
+  - name: demo
+    gecos: Demo user
+    shell: /bin/bash
+    groups: [users, crontab, ssh, admin, netdev]
+    passwd: $6$rounds=4096$IOSSNv5l/8Yu$Wml0YfYp7IUzEbNA8rqRjLftADlP143vm1f1StnBGmdA0lYNeyrdCa7K2SFe8MSJWZfA.RamTcdsTk6wgco66.
+    lock_passwd: False
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC3+do2TD2CcHpqiYkP2dRfSdWlxkeQtTjIK9YdtTEWq36MDvT893TiJww7R45kcMncikpgTj8FddKa+/Y3AzuyXHHeCSIzJNBApa/jSVgQ6JOO/liqqI2koglY1gasJqGHsdXFaoqs+67lc0QtlmuojKFpDjwWq2/UKC2Z4IFORk1pUVORw+voDdWhHGtfhoMIBv7CXABMyTdop1z2KkXxCc2m0MRmtypwNnF8NpxhTIsP3tF6d59cRcVmLBETp1KZYQ6dOdoFHxNRidOTRtD5FV10RzsHzS3Rx7ONUeQBNnsxRyRpLyozcrCpr+JyiOijJvKthcLQFnDj/20SiyQb lojakab@uncia
+      - ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAnqccHq/5T2lM7JuIcYHVnQHdY5a1Wf1S4xjW2wmwkvsft/kkHz75vTLZAEU7Mh9nI0fYbj20WvDWyrw0j1LVnqtbgyi0uwqIOrXisolUY1Lvk9r3Nhp0vRCMEX/wjs71X/Q+EioTA8Qn0kwfFMESveZFIUgPiZ7r+l2sUfiRsMb28V3KH1uKPQkx8DUNsHLM9D5hWMefEWdr25kU4P2eHFe2LdHIeXYOgByIZF8Otv4zMJCXF+ni4TPQqI4qxT0JMCYQsoQ3jcfYnxKkNc9zCjOZuyRkwRHpJRPMjKQibX/GFxMVkPGQwfKb/hmbX0O0VPaTincHvrOxBCgXp/iyPw== moriarty@lynx
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC3cCfaBT/TER9biMMSj4w/pjo6aGg5dNHQNadOr0Jmk/n1A/yFqL0qw9KosNiZjhi9uX7l8fCsDu4B5d2ubvEZ976tDizjcO8AtdRDMDaEg7ilpnkxKBT6CEHnRd1T9mzQXS0W7Pylz0fOtxzyDhKR3ZowoEKNr2ZJPzAk/irgNmOJdtyRg9kzOP+sjGnkY98Qinvpe/QB+feeSujKfiAwDRHpDKs054tYqeZIn47E7OuWoQ3gSaJc54MCn2+Y1asJ4xjTMlgI5/kUbBEZCMC4QhyTnJbkQ6TpieE04R+BIJmPylkRK/Q0GoK6YxyJJ6s/ztxJaym62vKOf155zXThsppsxksUHw7hAM+qLlP20yWphw/2oHcknHh0VE2Mn3uinMnPfOvYxEZ//umHvPG/i/QY23VzvZABuvUIMkdZL9UypHooWlj5a+/UhZK475Zer3hSZc+Z+XACrBzQgwtWvqcp4o1Km2vcajImwZWWs+yNqgy15C9iYEzHHTMldyf+3nDumViPbH+lU8hMu9i0EOzYl+DCwmzDgKJwGtV2A65Ln2lm9J06Pp4RMriq/vNtl2acuigrFvc6PVPxOPmDzTPQ/RcwwNjho0HUu8UW+UFTOSra8FBuBwk+DpBKiPPqipMLY3WI0V0CoYzWe5Y9g13p51W85hQpBnhW2TXIgQ== /Users/natal/.ssh/id_rsa
+package_update: true
+package_upgrade: true
+runcmd:
+  - timedatectl set-timezone America/Los_Angeles

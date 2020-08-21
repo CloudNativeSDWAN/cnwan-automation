@@ -1,0 +1,78 @@
+#!/usr/bin/env expect
+#
+# Copyright (C) 2020 Cisco Systems, Inc.
+#
+# @author  Lori Jakab <lojakab@cisco.com>
+
+
+# Tcl function to read a file
+proc slurp {file} {
+    set fh [open $file r]
+    set ret [read $fh]
+    close $fh
+    return $ret
+}
+
+set timeout 90
+
+set gcp_project [lindex $argv 0]
+set gcp_zone [lindex $argv 1]
+# The instance name on GCP
+set vm [lindex $argv 2]
+# The expected prompt (which contains the initial host name)
+set prompt [lindex $argv 3]
+# The path to the configuration file we want to apply
+set config [slurp [lindex $argv 4]]
+
+# Initially we can only connect to the serial port of the Viptela VM
+spawn gcloud compute connect-to-serial-port admin@$vm --zone $gcp_zone --project $gcp_project
+
+# While we're waiting for the system to boot, we don't want to see all messages
+log_user 0
+expect "System Ready"
+# Now that the system is ready, it's useful to see what's going on
+log_user 1
+send "\r"
+expect "login:"
+send "admin\r"
+expect "Password:"
+send "admin\r"
+expect "Password:"
+send "changeme\r"
+expect "Re-enter password:"
+send "changeme\r"
+expect {
+    "Select storage device to use:" {
+        send "1\r"
+        expect "? (y/n):"
+        send "y\r"
+        expect "Broadcast message from root"
+        log_user 0
+        expect "viptela"
+        log_user 1
+        expect "System Ready"
+        send "\r"
+        expect "login:"
+        send "admin\r"
+        expect "Password:"
+        send "changeme\r"
+        exp_continue
+    }
+    "$prompt"
+}
+send "conf t\r"
+send "$config\r"
+send "commit and-quit\r"
+expect {
+    "Aborted:" {
+        send "abort\n"
+        close
+        wait
+        exit 1
+    }
+    "Commit complete." {
+        send "exit\r"
+        expect "login:"
+        close
+    }
+}

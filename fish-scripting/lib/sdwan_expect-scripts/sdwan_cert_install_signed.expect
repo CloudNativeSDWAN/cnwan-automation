@@ -1,0 +1,22 @@
+#!/usr/bin/env expect
+#
+# Copyright (C) 2020 Cisco Systems, Inc.
+#
+# @author  Lori Jakab <lojakab@cisco.com>
+
+
+set timeout 60
+
+# The first argument is the instance IP address on GCP
+set vm_ip [lindex $argv 0]
+# The second argument is the expected prompt (which contains the host name)
+set prompt [lindex $argv 1]
+
+spawn ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=ERROR admin@$vm_ip
+
+expect "$prompt"
+send "request certificate install /home/admin/controller.crt\r"
+expect "Successfully installed the certificate"
+expect "$prompt"
+send "exit\r"
+expect eof
