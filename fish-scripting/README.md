@@ -29,7 +29,9 @@ Linux, please let us know.*
 - The [`yq` command-line YAML processor](https://mikefarah.gitbook.io/yq/)
   is used to parse configuration. Minimum required version is 3.2.1 in order
   to support reading array length
-- `base64` to encode files into *cloud-init* configurations
+- `base64` to encode files into *cloud-init* configurations (on macOS use the
+  built-in version not the Homebrew *base64* package, as default behavior for
+  line wrap and CLI options differ)
 - `mkisofs` from the *cdrtools* package is used to generate the CD-ROM images
   attached to VMs for *cloud-init* on private clouds
 - `envsubst` from the *gettext* package is used to fill values into template
