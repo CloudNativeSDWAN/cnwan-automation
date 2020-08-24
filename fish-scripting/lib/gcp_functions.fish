@@ -29,8 +29,8 @@ function gcp_create_compute_image
     gtar --format=oldgnu -Sczf $local_tempdir/$image_basename.tar.gz -C $local_tempdir disk.raw
     rm $local_tempdir/disk.raw
     gsutil mb -p $gcp_project -l $gcp_region gs://$storage_bucket; or exit 2
-    # Avoid using parallel upload, since it has issues. Biggest image is around 1.1GB
-    gsutil -o GSUtil:parallel_composite_upload_threshold=1536M\
+    # Avoid using parallel upload, since it has issues. Biggest image is around 1.6GB
+    gsutil -o GSUtil:parallel_composite_upload_threshold=2G \
         cp $local_tempdir/$image_basename.tar.gz gs://$storage_bucket; or gcp_create_compute_image_error $storage_bucket
     rm -f $local_tempdir/$image_basename.tar.gz
     gcp_delete_compute_image $argv[3]

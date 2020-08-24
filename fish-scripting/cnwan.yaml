@@ -35,8 +35,8 @@ gcp:
           prefix: 10.6.1.0/24
           gateway: 10.6.1.1
 sdwan:
-    version: 20.1.12
-    iosxe_version: 17.02.01v
+    version: 20.3.1
+    iosxe_version: 17.03.01a
     # Supported: qcow2 or ova, for cEdge only qcow2 is supported
     image_ext: qcow2
     # These paths are relative to current user's home directory
