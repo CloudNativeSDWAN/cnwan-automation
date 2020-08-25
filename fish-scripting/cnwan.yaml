@@ -76,6 +76,7 @@ sdwan:
           zone: <GCP_ZONE>
           system_ip: 192.168.127.21
           mgmt_static_ip: 10.1.1.21
+          service_network: cnwan-streaming-client
           service_static_ip: 10.5.1.11
         - vm_name: cnwan-vedge-streaming-service
           vm_description: Viptela vEdge for the streaming video service side
@@ -84,4 +85,5 @@ sdwan:
           zone: <GCP_ZONE_SERVICE>
           system_ip: 192.168.127.22
           mgmt_static_ip: 10.1.1.22
+          service_network: cnwan-streaming-service
           service_static_ip: 10.6.1.11
