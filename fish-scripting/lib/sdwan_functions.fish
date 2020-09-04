@@ -230,11 +230,13 @@ function sdwan_create_control_plane_vms
             set vm_prompt "vedge#"
             gcp_create_vm_instance_2subnet $vm_name $vm_description \
                 $vm_family $gcp_project \
+                "user-data=$local_tempdir/user-data" \
                 cnwan-mgmt "$mgmt_ip" \
                 cnwan-ctrl "$ctrl_ip"
         else
             gcp_create_vm_instance_2subnet $vm_name $vm_description \
                 $vm_family $gcp_project \
+                "user-data=$local_tempdir/user-data" \
                 cnwan-ctrl "$ctrl_ip" \
                 cnwan-mgmt "$mgmt_ip,no-address"
         end
@@ -296,7 +298,8 @@ function sdwan_create_data_plane_vm
         $service_ip/24
 
     gcp_create_vm_instance_vedge $vm_name $vm_description \
-        $vm_family $gcp_project $vm_zone\
+        $vm_family $gcp_project $vm_zone \
+        "user-data=$local_tempdir/user-data" \
         cnwan-mgmt "$mgmt_ip" \
         cnwan-public-internet "10.3.1.$host" \
         cnwan-biz-internet "10.4.1.$host,no-address" \

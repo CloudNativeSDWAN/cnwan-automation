@@ -151,12 +151,12 @@ function gcp_create_vm_instance_2subnet
         --machine-type n1-standard-2 \
         --image-family $argv[3] \
         --image-project $argv[4] \
-        --metadata-from-file user-data=$local_tempdir/user-data \
+        --metadata-from-file $argv[5] \
         $create_disk \
         # PREMIUM is the default, but leaving it here to be explicit
         --network-tier PREMIUM \
-        --network-interface subnet=$argv[5]-default,private-network-ip=$argv[6] \
-        --network-interface subnet=$argv[7]-default,private-network-ip=$argv[8] \
+        --network-interface subnet=$argv[6]-default,private-network-ip=$argv[7] \
+        --network-interface subnet=$argv[8]-default,private-network-ip=$argv[9] \
         --project $gcp_project \
         --zone $gcp_zone; or exit 1
 end
@@ -169,13 +169,13 @@ function gcp_create_vm_instance_3subnet
         --machine-type n1-standard-4 \
         --image-family $argv[3] \
         --image-project $argv[4] \
-        --metadata-from-file user-data=$local_tempdir/user-data \
+        --metadata-from-file $argv[5] \
         # PREMIUM is the default, but leaving it here to be explicit
         --network-tier PREMIUM \
         --can-ip-forward \
-        --network-interface subnet=$argv[5]-default,private-network-ip=$argv[6] \
-        --network-interface subnet=$argv[7]-default,private-network-ip=$argv[8] \
-        --network-interface subnet=$argv[9]-default,private-network-ip=$argv[10] \
+        --network-interface subnet=$argv[6]-default,private-network-ip=$argv[7] \
+        --network-interface subnet=$argv[8]-default,private-network-ip=$argv[9] \
+        --network-interface subnet=$argv[10]-default,private-network-ip=$argv[11] \
         --project $gcp_project \
         --zone $gcp_zone; or exit 1
 end
@@ -188,14 +188,14 @@ function gcp_create_vm_instance_vedge
         --custom-memory 4 \
         --image-family $argv[3] \
         --image-project $argv[4] \
-        --metadata-from-file user-data=$local_tempdir/user-data \
+        --metadata-from-file $argv[6] \
         # PREMIUM is the default, but leaving it here to be explicit
         --network-tier PREMIUM \
         --can-ip-forward \
-        --network-interface subnet=$argv[6]-default,private-network-ip=$argv[7] \
-        --network-interface subnet=$argv[8]-default,private-network-ip=$argv[9] \
-        --network-interface subnet=$argv[10]-default,private-network-ip=$argv[11] \
-        --network-interface subnet=$argv[12]-default,private-network-ip=$argv[13] \
+        --network-interface subnet=$argv[7]-default,private-network-ip=$argv[8] \
+        --network-interface subnet=$argv[9]-default,private-network-ip=$argv[10] \
+        --network-interface subnet=$argv[11]-default,private-network-ip=$argv[12] \
+        --network-interface subnet=$argv[13]-default,private-network-ip=$argv[14] \
         --project $gcp_project \
         --zone $argv[5]; or exit 1
 end
