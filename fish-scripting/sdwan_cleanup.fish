@@ -9,7 +9,7 @@ set script_dir (realpath (dirname (status -f)))
 source $script_dir/lib/cna_functions.fish
 source $script_dir/lib/sdwan_functions.fish
 
-cna_get_required_config
+cna_get_required_config $argv[1]
 sdwan_init
 
 for i in (seq 1 $sdwan_edge_vm_count)
