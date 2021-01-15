@@ -35,8 +35,8 @@ Linux, please let us know.*
 
 - The Fish Shell, version 2.3.0 or higher.
 - The [`yq` command-line YAML processor](https://mikefarah.gitbook.io/yq/)
-  is used to parse configuration. Minimum required version is 3.2.1 in order
-  to support reading array length
+  is used to parse configuration. Supported versions are from 3.2.1 through
+  3.4.1. Version 4.x changed the CLI and is not yet supported.
 - `base64` to encode files into *cloud-init* configurations (on macOS use the
   built-in version not the Homebrew *base64* package, as default behavior for
   line wrap and CLI options differ)
@@ -55,7 +55,9 @@ Linux, please let us know.*
 On macOS with Homebrew install all in one go (except for `gcloud`/`gsutil`
 which needs manual installation):
 
-    brew install fish yq cdrtools gettext expect openssl gnu-tar govc 
+    brew install fish yq@3 cdrtools gettext expect openssl gnu-tar govc
+    echo 'set -g fish_user_paths "/usr/local/opt/yq@3/bin" $fish_user_paths' \
+        >> ~/.config/fish/config.fish
 
 ## Selective useful resources used to develop the scripts
 
