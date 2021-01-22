@@ -14,7 +14,7 @@ sdwan_init
 
 for i in (seq 1 $sdwan_edge_vm_count)
     set idx (math $i - 1)
-    set vm_name (yq r $cna_config_file "sdwan.vedge[$idx].vm_name")
+    set vm_name (yq e ".sdwan.vedge[$idx].vm_name" $cna_config_file)
     gcloud -q compute instances delete $vm_name --project $gcp_project
 end
 
@@ -24,7 +24,7 @@ gcloud -q compute instances delete cnwan-vmanage --project $gcp_project
 
 for i in (seq 1 $gcp_network_count)
     set idx (math $i - 1)
-    set network_name (yq r $cna_config_file "gcp.networks[$idx].name")
+    set network_name (yq e ".gcp.networks[$idx].name" $cna_config_file)
     gcp_delete_single_subnet_network $network_name
 end
 

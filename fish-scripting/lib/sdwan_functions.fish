@@ -13,20 +13,20 @@ source $sdwan_script_dir/cloud-init_functions.fish
 
 # Set SD-WAN related global variables
 function sdwan_init
-    set -g sdwan_password (yq r $cna_credentials_file "sdwan.password")
-    set -g sdwan_version (yq r $cna_config_file "sdwan.version")
+    set -g sdwan_password (yq e ".sdwan.password" $cna_credentials_file)
+    set -g sdwan_version (yq e ".sdwan.version" $cna_config_file)
     set -g sdwan_version_dashes (string replace -a '.' '-' $sdwan_version)
-    set -g sdwan_iosxe_version (yq r $cna_config_file "sdwan.iosxe_version")
-    set -g sdwan_image_path $HOME/(yq r $cna_config_file "sdwan.image_path")
-    set -g sdwan_image_ext (yq r $cna_config_file "sdwan.image_ext")
-    set -g sdwan_cert_path $HOME/(yq r $cna_config_file "sdwan.cert_path")
+    set -g sdwan_iosxe_version (yq e ".sdwan.iosxe_version" $cna_config_file)
+    set -g sdwan_image_path $HOME/(yq e ".sdwan.image_path" $cna_config_file)
+    set -g sdwan_image_ext (yq e ".sdwan.image_ext" $cna_config_file)
+    set -g sdwan_cert_path $HOME/(yq e ".sdwan.cert_path" $cna_config_file)
     set -g sdwan_root_ca_file $sdwan_cert_path/root_ca.pem
     set -g sdwan_root_ca_key_file $sdwan_cert_path/ca_private_key.pem
-    set -g sdwan_org_name (yq r $cna_config_file "sdwan.org_name")
+    set -g sdwan_org_name (yq e ".sdwan.org_name" $cna_config_file)
 
     set -g sdwan_ctrl_vms vmanage vbond vsmart
     set -g sdwan_ctrl_ext_ips
-    set -g sdwan_edge_vm_count (yq r $cna_config_file --length "sdwan.vedge")
+    set -g sdwan_edge_vm_count (yq e ".sdwan.vedge | length")
     set -g sdwan_edge_ext_ips
 end
 
@@ -73,8 +73,8 @@ function sdwan_create_networks
     echo ""
     for i in (seq 1 $gcp_network_count)
         set idx (math $i - 1)
-        set network_name (yq r $cna_config_file "gcp.networks[$idx].name")
-        set network_prefix (yq r $cna_config_file "gcp.networks[$idx].prefix")
+        set network_name (yq e ".gcp.networks[$idx].name" $cna_config_file)
+        set network_prefix (yq e ".gcp.networks[$idx].prefix" $cna_config_file)
         gcp_create_single_subnet_network $network_name $network_prefix
     end
 end
@@ -190,7 +190,7 @@ function sdwan_create_certificate_authority
     chmod 700 $sdwan_cert_path
     openssl req -new -x509 -extensions v3_ca -days 365 -newkey rsa:4096 \
         -keyout $sdwan_root_ca_key_file -out $sdwan_root_ca_file -nodes \
-        -subj (yq r $cna_config_file "sdwan.root_ca_subject")
+        -subj (yq e ".sdwan.root_ca_subject" $cna_config_file)
 end
 
 function sdwan_install_certificate
@@ -214,14 +214,14 @@ end
 function sdwan_create_control_plane_vms
     for vm in $sdwan_ctrl_vms
         ci_create_user_data_sdwan $vm $gcp_ntp \
-            (yq r $cna_config_file "gcp.networks.(name==cnwan-mgmt).gateway") \
-            (yq r $cna_config_file "gcp.networks.(name==cnwan-ctrl).gateway")
-        set vm_name (yq r $cna_config_file "sdwan.$vm.vm_name")
-        set vm_description (yq r $cna_config_file "sdwan.$vm.vm_description")
+            (yq e '.gcp.networks.[] | select(.name=="cnwan-mgmt") | .gateway' $cna_config_file) \
+            (yq e '.gcp.networks.[] | select(.name=="cnwan-ctrl") | .gateway' $cna_config_file) \
+        set vm_name (yq e ".sdwan.$vm.vm_name" $cna_config_file)
+        set vm_description (yq e ".sdwan.$vm.vm_description")
         set vm_family sdwan-$vm
         set vm_prompt "$vm#"
-        set mgmt_ip (yq r $cna_config_file "sdwan.$vm.mgmt_static_ip")
-        set ctrl_ip (yq r $cna_config_file "sdwan.$vm.ctrl_static_ip")
+        set mgmt_ip (yq e ".sdwan.$vm.mgmt_static_ip")
+        set ctrl_ip (yq e ".sdwan.$vm.ctrl_static_ip")
 
         # GCP specific part
         echo "[ℹ] Creating VM $vm_name..."
@@ -262,8 +262,8 @@ function sdwan_configure_control_plane_vms
     sdwan_api_call PUT "settings/configuration/organization" 200 \
         "{\"domain-id\": \"1\", \"org\": \"$sdwan_org_name\"}"
 
-    set vbond (yq r $cna_config_file "sdwan.vbond.ctrl_static_ip")
-    set vsmart (yq r $cna_config_file "sdwan.vsmart.ctrl_static_ip")
+    set vbond (yq e ".sdwan.vbond.ctrl_static_ip" $cna_config_file)
+    set vsmart (yq e ".sdwan.vsmart.ctrl_static_ip" $cna_config_file)
     sdwan_api_call PUT "settings/configuration/device" 200 \
         "{\"domainIp\": \"$vbond\", \"port\": \"12346\"}"
     sdwan_api_call POST "system/device" 200 \
@@ -276,25 +276,25 @@ end
 function sdwan_create_data_plane_vm
     set vm $argv[1]
     set vm_i "$vm""[$argv[2]]"
-    set vm_name (yq r $cna_config_file "sdwan.$vm_i.vm_name")
-    set vm_zone (yq r $cna_config_file "sdwan.$vm_i.zone")
-    set vm_description (yq r $cna_config_file "sdwan.$vm_i.vm_description")
+    set vm_name (yq e ".sdwan.$vm_i.vm_name" $cna_config_file)
+    set vm_zone (yq e ".sdwan.$vm_i.zone" $cna_config_file)
+    set vm_description (yq e ".sdwan.$vm_i.vm_description" $cna_config_file)
     set vm_family sdwan-$vm
     set vm_prompt "$vm#"
-    set system_ip (yq r $cna_config_file "sdwan.$vm_i.system_ip")
+    set system_ip (yq e ".sdwan.$vm_i.system_ip" $cna_config_file)
     set host (string split -r -m1 . $system_ip)[2]
-    set mgmt_ip (yq r $cna_config_file "sdwan.$vm_i.mgmt_static_ip")
-    set ctrl_ip (yq r $cna_config_file "sdwan.$vm_i.ctrl_static_ip")
-    set service_network (yq r $cna_config_file "sdwan.$vm_i.service_network")
-    set service_ip (yq r $cna_config_file "sdwan.$vm_i.service_static_ip")
-    # set vbond_vm_name (yq r $cna_config_file "sdwan.vbond.vm_name")
+    set mgmt_ip (yq e ".sdwan.$vm_i.mgmt_static_ip" $cna_config_file)
+    set ctrl_ip (yq e ".sdwan.$vm_i.ctrl_static_ip" $cna_config_file)
+    set service_network (yq e ".sdwan.$vm_i.service_network" $cna_config_file)
+    set service_ip (yq e ".sdwan.$vm_i.service_static_ip" $cna_config_file)
+    # set vbond_vm_name (yq e ".sdwan.vbond.vm_name" $cna_config_file)
     # set vbond_ip (gcloud compute instances describe $vbond_vm_name --project $gcp_project --zone $gcp_zone --format="value(networkInterfaces[1].accessConfigs.natIP)" ^ /dev/null)
 
     ci_create_user_data_sdwan $vm_i $gcp_ntp \
-        (yq r $cna_config_file "gcp.networks.(name==cnwan-mgmt).gateway") \
-        (yq r $cna_config_file "gcp.networks.(name==cnwan-ctrl).gateway") \
-        (yq r $cna_config_file "gcp.networks.(name==cnwan-public-internet).gateway") \
-        (yq r $cna_config_file "gcp.networks.(name==cnwan-biz-internet).gateway") \
+        (yq e '.gcp.networks.[] | select(.name=="cnwan-mgmt") | .gateway' $cna_config_file) \
+        (yq e '.gcp.networks.[] | select(.name=="cnwan-ctrl") | .gateway' $cna_config_file) \
+        (yq e '.gcp.networks.[] | select(.name=="cnwan-public-internet") | .gateway' $cna_config_file) \
+        (yq e '.gcp.networks.[] | select(.name=="cnwan-biz-internet") | .gateway' $cna_config_file) \
         $service_ip/24
 
     gcp_create_vm_instance_vedge $vm_name $vm_description \
@@ -317,8 +317,8 @@ end
 function sdwan_configure_data_plane_vm
     set vm $argv[1]
     set vm_i "$vm""[$argv[2]]"
-    set vm_name (yq r $cna_config_file "sdwan.$vm_i.vm_name")
-    set vm_zone (yq r $cna_config_file "sdwan.$vm_i.zone")
+    set vm_name (yq e ".sdwan.$vm_i.vm_name" $cna_config_file)
+    set vm_zone (yq e ".sdwan.$vm_i.zone" $cna_config_file)
     set external_ip (gcloud compute instances describe $vm_name --project $gcp_project --zone $vm_zone --format="value(networkInterfaces[0].accessConfigs.natIP)" ^ /dev/null)
 
     sdwan_install_certificate $vm_name $external_ip
@@ -328,7 +328,7 @@ function sdwan_configure_data_plane_vm
     set serial (string split " " $vedge_info)[2]
 
     for vm in $sdwan_ctrl_vms
-        set vm_name (yq r $cna_config_file "sdwan.$vm.vm_name")
+        set vm_name (yq e ".sdwan.$vm.vm_name" $cna_config_file)
         set external_ip (gcloud compute instances describe $vm_name --project $gcp_project --zone $gcp_zone --format="value(networkInterfaces[0].accessConfigs.natIP)" ^ /dev/null)
         $sdwan_script_dir/sdwan_expect-scripts/sdwan_register_vedge.expect \
             $external_ip "$vm_name#" $chassis $serial $sdwan_org_name
@@ -349,15 +349,15 @@ end
 
 function sdwan_get_external_ips
     for vm in $sdwan_ctrl_vms
-        set vm_name (yq r $cna_config_file "sdwan.$vm.vm_name")
+        set vm_name (yq e ".sdwan.$vm.vm_name" $cna_config_file)
         set external_ip (gcloud compute instances describe $vm_name --project $gcp_project --zone $gcp_zone --format="value(networkInterfaces[0].accessConfigs.natIP)" ^ /dev/null)
         set sdwan_ctrl_ext_ips $sdwan_ctrl_ext_ips $external_ip
     end
 
     for i in (seq 1 $sdwan_edge_vm_count)
         set idx (math $i - 1)
-        set vm_name (yq r $cna_config_file "sdwan.vedge[$idx].vm_name")
-        set zone (yq r $cna_config_file "sdwan.vedge[$idx].zone")
+        set vm_name (yq e ".sdwan.vedge[$idx].vm_name" $cna_config_file)
+        set zone (yq e ".sdwan.vedge[$idx].zone" $cna_config_file)
         set external_ip (gcloud compute instances describe $vm_name --project $gcp_project --zone $zone --format="value(networkInterfaces[0].accessConfigs.natIP)" ^ /dev/null)
         set sdwan_edge_ext_ips $sdwan_edge_ext_ips $external_ip
     end
