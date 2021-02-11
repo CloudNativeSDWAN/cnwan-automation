@@ -26,7 +26,7 @@ function sdwan_init
 
     set -g sdwan_ctrl_vms vmanage vbond vsmart
     set -g sdwan_ctrl_ext_ips
-    set -g sdwan_edge_vm_count (yq e ".sdwan.vedge | length")
+    set -g sdwan_edge_vm_count (yq e ".sdwan.vedge | length" $cna_config_file)
     set -g sdwan_edge_ext_ips
 end
 
