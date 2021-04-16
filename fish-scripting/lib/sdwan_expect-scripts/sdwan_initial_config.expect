@@ -13,7 +13,7 @@ proc slurp {file} {
     return $ret
 }
 
-set timeout 90
+set timeout 180
 
 set gcp_project [lindex $argv 0]
 set gcp_zone [lindex $argv 1]
@@ -51,6 +51,7 @@ expect {
         expect "viptela"
         log_user 1
         expect "System Ready"
+        sleep 60
         send "\r"
         expect "login:"
         send "admin\r"

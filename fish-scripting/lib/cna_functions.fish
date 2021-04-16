@@ -44,12 +44,14 @@ function cna_get_required_config
     set -g gcp_project (yq e ".gcp.project" $cna_config_file); and cna_exit_if_not_set $gcp_project gcp.project
     set -g gcp_zone (yq e '.gcp.zone // "us-west2-c"' $cna_config_file)
     set -g gcp_region (string split -r -m1 '-' $gcp_zone)[1]
-    set -g gcp_resource_labels (yq e ".gcp.resource_label" $cna_config_file)=
+    set -g gcp_resource_label (yq e ".gcp.resource_label" $cna_config_file)
+    set -g gcp_resource_labels $gcp_resource_label=
     set -g gcp_cisco_infosec_labels (yq e '.gcp.cisco_infosec_labels | ... comments=""' $cna_config_file | sed -e ':a' -e 'N;$!ba' -e 's/\n/,/g' -e 's/: /=/g')
     if test -n "$gcp_cisco_infosec_labels"
         set -g gcp_resource_labels "$gcp_resource_labels,$gcp_cisco_infosec_labels"
     end
     echo "[ℹ] GCP labels: $gcp_resource_labels"
+    echo ""
     set -g gcp_ntp (yq e ".gcp.ntp" $cna_config_file)
     set -g gcp_domain (yq e ".gcp.domain" $cna_config_file)
     set -g gcp_network_count (yq e ".gcp.networks | length" $cna_config_file)

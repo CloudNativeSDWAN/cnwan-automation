@@ -48,6 +48,7 @@ sdwan:
     geolocation:
         latitude: 37.419869
         longitude: -121.919444
+    naming_prefix: trial
     vmanage:
         vm_name: cnwan-vmanage
         vm_description: Viptela vManage VM

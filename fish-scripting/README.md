@@ -56,6 +56,11 @@ which needs manual installation):
 
     brew install fish yq cdrtools gettext expect openssl gnu-tar govc
 
+Please note that on some systems, including macOS the `openssl` library is
+symlinked to a different SSL/TLS library which may not have the required
+features. Make sure that you have an actual OpenSSL in you shell path first,
+by running `openssl version`.
+
 ## Selective useful resources used to develop the scripts
 
 - [Scripting `gcloud` CLI commands](https://cloud.google.com/sdk/docs/scripting-gcloud)

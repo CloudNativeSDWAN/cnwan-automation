@@ -17,6 +17,9 @@ function ci_create_user_data_sdwan
     set role $argv[1]
     set conf sdwan.$argv[1]
     set vbond (yq e ".sdwan.vbond.ctrl_static_ip" $cna_config_file)
+    if test "$vbond" = "null"
+        set vbond $argv[8]
+    end
     if test "$argv[1]" = "vbond"
         set vbond "$vbond local"
     end
@@ -24,7 +27,6 @@ function ci_create_user_data_sdwan
     string match -qie vedge $role
     if test $status -eq 0
         set role vedge
-        # set vbond $argv[8]
     end
 
     set sdwan_pubkey_entry "!"
@@ -33,9 +35,16 @@ function ci_create_user_data_sdwan
         set sdwan_pubkey_entry "pubkey-chain automation key-string $local_ssh_pubkey"
     end
 
-    env VM_NAME=(yq e ".$conf.vm_name" $cna_config_file) \
+    set vm_name (yq e ".$conf.vm_name" $cna_config_file)
+    set vm_name "$sdwan_naming_prefix-$vm_name"
+    set site_id (yq e ".$conf.site_id" $cna_config_file)
+    if test "$site_id" = "null"
+        set site_id $sdwan_ctrl_site_id
+    end
+
+    env VM_NAME=$vm_name \
         SDWAN_SYSTEM_IP=(yq e ".$conf.system_ip" $cna_config_file) \
-        SDWAN_SITE_ID=(yq e ".$conf.site_id" $cna_config_file) \
+        SDWAN_SITE_ID=$site_id \
         SDWAN_ORG=$sdwan_org_name \
         SDWAN_VBOND_IP=$vbond \
         SDWAN_GEO_LAT=(yq e ".sdwan.geolocation.latitude" $cna_config_file) \

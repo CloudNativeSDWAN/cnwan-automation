@@ -17,7 +17,7 @@ spawn ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLeve
 
 expect "$prompt"
 send "show certificate serial\r"
-expect -re "\nChassis number: (\[0-9a-f\-]{36}) serial number: (\[0-9A-F]{16})\r"
+expect -re "\nChassis number: (\[0-9a-f\-]{36}) serial number: (\[0-9A-F]{40})\r"
 expect "$prompt"
 send "exit\r"
 expect eof
