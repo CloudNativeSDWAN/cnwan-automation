@@ -1,0 +1,38 @@
+{% set BASE_URL = 'https://www.googleapis.com/compute/v1' %}
+
+resources:
+- type: compute.v1.disk
+  name: {{ properties["namingPrefix"] }}-sdwan-vmanage-data
+  properties:
+    description: Cisco SD-WAN vManage data disk
+    zone: {{ properties["zone"] }}
+    sizeGb: 20
+    type: {{ BASE_URL }}/projects/{{ env["project"] }}/zones/{{ properties["zone"] }}/diskTypes/pd-standard
+- type: compute.v1.instance
+  name: {{ properties["namingPrefix"] }}-sdwan-vmanage
+  properties:
+    zone: {{ properties["zone"] }}
+    machineType: {{ BASE_URL }}/projects/{{ env["project"] }}/zones/{{ properties["zone"] }}/machineTypes/custom-2-12288
+    labels:
+      {{ properties["label"] }}: ""
+    disks:
+    - deviceName: boot
+      type: PERSISTENT
+      boot: true
+      autoDelete: true
+      initializeParams:
+        sourceImage: {{ BASE_URL }}/projects/{{ env["project"] }}/global/images/family/sdwan-vmanage
+      guestOsFeatures:
+      - type: MULTI_IP_SUBNET
+    - deviceName: {{ properties["namingPrefix"] }}-sdwan-vmanage-data
+      boot: false
+      autoDelete: true
+      source: $(ref.{{ properties["namingPrefix"] }}-sdwan-vmanage-data.selfLink)
+    networkInterfaces:
+    - network: $(ref.{{ properties["ctrlNetworkName"] }}.selfLink)
+      subnetwork: $(ref.{{ properties["ctrlNetworkName"] }}-{{ properties["siteId"] }}.selfLink)
+      accessConfigs:
+      - name: External NAT
+        type: ONE_TO_ONE_NAT
+    - network: {{ BASE_URL }}/projects/{{ env["project"] }}/global/networks/default
+      subnetwork: $(ref.{{ properties["namingPrefix"] }}-sdwan-management-network-{{ properties["siteId"] }}.selfLink)

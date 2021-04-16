@@ -1,0 +1,34 @@
+{% set BASE_URL = 'https://www.googleapis.com/compute/v1' %}
+
+resources:
+- type: compute.v1.instance
+  name: {{ properties["namingPrefix"] }}-sdwan-vedge-{{ properties["instanceId"] }}
+  properties:
+    description: Cisco SD-WAN vEdge for {{ properties["instanceId"] }} site
+    zone: {{ properties["zone"] }}
+    machineType: {{ BASE_URL }}/projects/{{ env["project"] }}/zones/{{ properties["zone"] }}/machineTypes/n1-highcpu-4
+    labels:
+      {{ properties["label"] }}: ""
+    disks:
+    - deviceName: boot
+      type: PERSISTENT
+      boot: true
+      autoDelete: true
+      initializeParams:
+        sourceImage: {{ BASE_URL }}/projects/{{ env["project"] }}/global/images/family/{{ properties["imageFamily"] }}
+      guestOsFeatures:
+      - type: MULTI_IP_SUBNET
+    canIpForward: true
+    networkInterfaces:
+    - network: {{ BASE_URL }}/projects/{{ env["project"] }}/global/networks/default
+      subnetwork:  {{ BASE_URL }}/projects/{{ env["project"] }}/regions/{{ properties["region"] }}/subnetworks/{{ properties["namingPrefix"] }}-sdwan-management-network-{{ properties["siteId"] }}
+      accessConfigs:
+      - name: External NAT
+        type: ONE_TO_ONE_NAT
+    - network: $(ref.{{ properties["networkTunnel1"] }}.selfLink)
+      subnetwork: $(ref.{{ properties["networkTunnel1"] }}-{{ properties["siteId"] }}.selfLink)
+    - network: $(ref.{{ properties["networkTunnel2"] }}.selfLink)
+      subnetwork: $(ref.{{ properties["networkTunnel2"] }}-{{ properties["siteId"] }}.selfLink)
+    - network: $(ref.{{ properties["networkService"] }}.selfLink)
+      subnetwork: $(ref.{{ properties["networkService"] }}-{{ properties["siteId"] }}.selfLink)
+      networkIP: {{ properties["networkServiceIP"] }}

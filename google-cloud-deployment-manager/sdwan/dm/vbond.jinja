@@ -1,0 +1,31 @@
+{% set BASE_URL = 'https://www.googleapis.com/compute/v1' %}
+
+resources:
+- type: compute.v1.instance
+  name: {{ properties["namingPrefix"] }}-sdwan-vbond
+  properties:
+    description: Cisco SD-WAN vBond
+    zone: {{ properties["zone"] }}
+    machineType: {{ BASE_URL }}/projects/{{ env["project"] }}/zones/{{ properties["zone"] }}/machineTypes/custom-4-4096
+    labels:
+      {{ properties["label"] }}: ""
+    disks:
+    - deviceName: boot
+      type: PERSISTENT
+      boot: true
+      autoDelete: true
+      initializeParams:
+        sourceImage: {{ BASE_URL }}/projects/{{ env["project"] }}/global/images/family/sdwan-vedge
+      guestOsFeatures:
+      - type: MULTI_IP_SUBNET
+    networkInterfaces:
+    - network: {{ BASE_URL }}/projects/{{ env["project"] }}/global/networks/default
+      subnetwork: $(ref.{{ properties["namingPrefix"] }}-sdwan-management-network-{{ properties["siteId"] }}.selfLink)
+      accessConfigs:
+      - name: External NAT
+        type: ONE_TO_ONE_NAT
+    - network: $(ref.{{ properties["ctrlNetworkName"] }}.selfLink)
+      subnetwork: $(ref.{{ properties["ctrlNetworkName"] }}-{{ properties["siteId"] }}.selfLink)
+      accessConfigs:
+      - name: External NAT
+        type: ONE_TO_ONE_NAT

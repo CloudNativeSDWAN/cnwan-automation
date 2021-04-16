@@ -1,0 +1,77 @@
+{% set BASE_URL = 'https://www.googleapis.com/compute/v1' %}
+
+imports:
+- path: network-template.jinja
+- path: vedge.jinja
+
+resources:
+- name: service-network
+  type: network-template.jinja
+  properties:
+    networkName: {{ properties["namingPrefix"] }}-service-network
+    v4Subnet: {{ properties["svcNetwork"] }}
+    region: {{ properties["region"] }}
+    siteId: {{ properties["siteId"] }}
+- name: sdwan-public-internet
+  type: network-template.jinja
+  properties:
+    networkName: {{ properties["namingPrefix"] }}-sdwan-public-internet
+    v4Subnet: {{ properties["pubiNetwork"] }}
+    region: {{ properties["region"] }}
+    siteId: {{ properties["siteId"] }}
+    openUDPPorts: ["12346-13046", "33434-33534"]
+    peerWith: {{ properties["namingPrefix"] }}-sdwan-control-network
+- name: addPeering-from-{{ properties["namingPrefix"] }}-sdwan-public-internet
+  action: gcp-types/compute-v1:compute.networks.addPeering
+  metadata:
+    runtimePolicy:
+    - CREATE
+  properties:
+    network: {{ properties["namingPrefix"] }}-sdwan-public-internet
+    name: to-{{ properties["namingPrefix"] }}-sdwan-control-network
+    autoCreateRoutes: true
+    peerNetwork: {{ BASE_URL }}/projects/{{ env["project"] }}/global/networks/{{ properties["namingPrefix"] }}-sdwan-control-network
+  metadata:
+    dependsOn:
+    - {{ properties["namingPrefix"] }}-sdwan-public-internet
+- name: sdwan-biz-internet
+  type: network-template.jinja
+  properties:
+    networkName: {{ properties["namingPrefix"] }}-sdwan-biz-internet
+    v4Subnet: {{ properties["biziNetwork"] }}
+    region: {{ properties["region"] }}
+    siteId: {{ properties["siteId"] }}
+    openUDPPorts: ["12346-13046", "33434-33534"]
+    peerWith: {{ properties["namingPrefix"] }}-sdwan-control-network
+  metadata:
+    dependsOn:
+    - addPeering-from-{{ properties["namingPrefix"] }}-sdwan-public-internet
+- name: addPeering-from-{{ properties["namingPrefix"] }}-sdwan-biz-internet
+  action: gcp-types/compute-v1:compute.networks.addPeering
+  metadata:
+    runtimePolicy:
+    - CREATE
+  properties:
+    network: {{ properties["namingPrefix"] }}-sdwan-biz-internet
+    name: to-{{ properties["namingPrefix"] }}-sdwan-control-network
+    autoCreateRoutes: true
+    peerNetwork: {{ BASE_URL }}/projects/{{ env["project"] }}/global/networks/{{ properties["namingPrefix"] }}-sdwan-control-network
+  metadata:
+    dependsOn:
+    - {{ properties["namingPrefix"] }}-sdwan-biz-internet
+    # The vedge dependency is a hack to delay the creation of the peering. Even though we depend on the sdwan-biz-internet network above, which depends on the previous peering, that peering actually takes time to really finish, and GCP won't allow a new one to be created before that.
+    - {{ properties["namingPrefix"] }}-sdwan-vedge-1
+- name: sdwan-vedge-1
+  type: vedge.jinja
+  properties:
+    namingPrefix: {{ properties["namingPrefix"] }}
+    instanceId: "1"
+    imageFamily: sdwan-vedge
+    region: {{ properties["region"] }}
+    zone: {{ properties["zone"] }}
+    siteId: {{ properties["siteId"] }}
+    networkTunnel1: {{ properties["namingPrefix"] }}-sdwan-public-internet
+    networkTunnel2: {{ properties["namingPrefix"] }}-sdwan-biz-internet
+    networkService: {{ properties["namingPrefix"] }}-service-network
+    networkServiceIP: {{ properties["svcNetworkIP"] }}
+    label: {{ properties["label"] }}

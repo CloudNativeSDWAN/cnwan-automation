@@ -1,0 +1,78 @@
+{% set BASE_URL = 'https://www.googleapis.com/compute/v1' %}
+
+imports:
+- path: network-template.jinja
+- path: vmanage.jinja
+- path: vbond.jinja
+- path: vsmart.jinja
+- path: vedge.jinja
+
+resources:
+- name: {{ properties["namingPrefix"] }}-sdwan-management-network-{{ properties["siteId"] }}
+  type: compute.v1.subnetwork
+  properties:
+    network: {{ BASE_URL }}/projects/{{ env["project"] }}/global/networks/default
+    ipCidrRange: {{ properties["mgmtNetwork"] }}
+    region: {{ properties["region"] }}
+- name: sdwan-control-network
+  type: network-template.jinja
+  properties:
+    networkName: {{ properties["namingPrefix"] }}-sdwan-control-network
+    v4Subnet: {{ properties["ctrlNetwork"] }}
+    region: {{ properties["region"] }}
+    siteId: {{ properties["siteId"] }}
+    openTCPPorts: ["22", "830", "8443"]
+    openUDPPorts: ["12346-13046"]
+- name: addPeering-to-{{ properties["namingPrefix"] }}-sdwan-public-internet
+  action: gcp-types/compute-v1:compute.networks.addPeering
+  metadata:
+    runtimePolicy:
+    - CREATE
+  properties:
+    network: {{ properties["namingPrefix"] }}-sdwan-control-network
+    name: to-{{ properties["namingPrefix"] }}-sdwan-public-internet
+    autoCreateRoutes: true
+    peerNetwork: {{ BASE_URL }}/projects/{{ env["project"] }}/global/networks/{{ properties["namingPrefix"] }}-sdwan-public-internet
+  metadata:
+    dependsOn:
+    - {{ properties["namingPrefix"] }}-sdwan-control-network
+- name: addPeering-to-{{ properties["namingPrefix"] }}-sdwan-biz-internet
+  action: gcp-types/compute-v1:compute.networks.addPeering
+  metadata:
+    runtimePolicy:
+    - CREATE
+  properties:
+    network: {{ properties["namingPrefix"] }}-sdwan-control-network
+    name: to-{{ properties["namingPrefix"] }}-sdwan-biz-internet
+    autoCreateRoutes: true
+    peerNetwork: {{ BASE_URL }}/projects/{{ env["project"] }}/global/networks/{{ properties["namingPrefix"] }}-sdwan-biz-internet
+  metadata:
+    dependsOn:
+    - addPeering-to-{{ properties["namingPrefix"] }}-sdwan-public-internet
+- name: vmanage
+  type: vmanage.jinja
+  properties:
+    namingPrefix: {{ properties["namingPrefix"] }}
+    ctrlNetworkIP: {{ properties["ctrlNetwork"] }}
+    zone: {{ properties["zone"] }}
+    siteId: {{ properties["siteId"] }}
+    ctrlNetworkName: {{ properties["namingPrefix"] }}-sdwan-control-network
+    label: {{ properties["label"] }}
+- name: vbond
+  type: vbond.jinja
+  properties:
+    namingPrefix: {{ properties["namingPrefix"] }}
+    ctrlNetworkIP: {{ properties["ctrlNetwork"] }}
+    zone: {{ properties["zone"] }}
+    siteId: {{ properties["siteId"] }}
+    ctrlNetworkName: {{ properties["namingPrefix"] }}-sdwan-control-network
+    label: {{ properties["label"] }}
+- name: vsmart
+  type: vsmart.jinja
+  properties:
+    namingPrefix: {{ properties["namingPrefix"] }}
+    ctrlNetworkIP: {{ properties["ctrlNetwork"] }}
+    zone: {{ properties["zone"] }}
+    siteId: {{ properties["siteId"] }}
+    ctrlNetworkName: {{ properties["namingPrefix"] }}-sdwan-control-network
+    label: {{ properties["label"] }}

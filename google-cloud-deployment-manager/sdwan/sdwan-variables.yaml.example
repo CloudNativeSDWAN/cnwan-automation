@@ -1,0 +1,51 @@
+loglevel: DEBUG
+local:
+    tempdir: /tmp
+gcp:
+    project: <GCP_PROJECT>
+    zone: <GCP_ZONE>
+    resource_label: sdwan-trial
+    ntp: metadata.google.internal
+sdwan:
+    password: <SDWAN_PASSWORD>
+    version: 20.3.3
+    # These paths are relative to current user's home directory
+    image_path: Kit/Viptela
+    cert_path: .sdwan
+    # If you change any of the below two lines, delete the above directory
+    org_name: CN-WAN
+    root_ca_subject: /C=US/ST=California/L=San Jose/O=Cisco/OU=IBNG/CN=cnwan.io/emailAddress=cnwan@cisco.com
+    geolocation:
+        latitude: 37.419869
+        longitude: -121.919444
+    naming_prefix: trial
+    mgmt_network: 10.100.255.0/24
+    ctrl_network: 10.100.100.0/24
+    ctrl_site_id: 100
+    vmanage:
+        vm_name: sdwan-vmanage
+        vm_description: Viptela vManage VM
+        system_ip: 192.168.127.12
+    vbond:
+        vm_name: sdwan-vbond
+        vm_description: Viptela vBond VM
+        system_ip: 192.168.127.13
+    vsmart:
+        vm_name: sdwan-vsmart
+        vm_description: Viptela vSmart VM
+        system_ip: 192.168.127.14
+    vedge:
+        - vm_name: sdwan-vedge-1
+          vm_description: Viptela vEdge VM
+          zone: <GCP_ZONE>
+          system_ip: 192.168.127.21
+          pubi_network: 10.100.101.0/24
+          bizi_network: 10.100.102.0/24
+          site_id: 100
+        - vm_name: sdwan-vedge-2
+          vm_description: Viptela vEdge VM
+          zone: <GCP_ZONE2>
+          system_ip: 192.168.127.22
+          pubi_network: 10.200.101.0/24
+          bizi_network: 10.200.102.0/24
+          site_id: 200

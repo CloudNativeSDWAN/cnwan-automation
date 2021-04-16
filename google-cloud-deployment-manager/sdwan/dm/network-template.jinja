@@ -1,0 +1,28 @@
+resources:
+- name: {{ properties["networkName"] }}
+  type: compute.v1.network
+  properties:
+    autoCreateSubnetworks: false
+    routingConfig:
+      routingMode: GLOBAL
+
+- name: {{ properties["networkName"] }}-{{ properties["siteId"] }}
+  type: compute.v1.subnetwork
+  properties:
+    network: $(ref.{{ properties["networkName"] }}.selfLink)
+    ipCidrRange: {{ properties["v4Subnet"] }}
+    region: {{ properties["region"] }}
+
+- name: {{ properties["networkName"] }}-fw-rule
+  type: compute.v1.firewall
+  properties:
+    network: $(ref.{{ properties["networkName"] }}.selfLink)
+    sourceRanges: ["0.0.0.0/0"]
+    allowed:
+    - IPProtocol: TCP
+      ports: {{ properties["openTCPPorts"] }}
+    {% if properties["openUDPPorts"] %}
+    - IPProtocol: UDP
+      ports: {{ properties["openUDPPorts"] }}
+    {% endif %}
+    - IPProtocol: ICMP

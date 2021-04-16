@@ -1,0 +1,39 @@
+info:
+  title: Network Template
+  author: Lori Jakab
+  description: Creates a custom type network and associated firewall rule
+  version: 1.0
+
+required:
+- networkName
+- region
+- siteId
+- v4Subnet
+- openTCPPorts
+
+properties:
+
+  networkName:
+    type: string
+    description: The name for the network
+
+  region:
+    type: string
+    description: The region for the default subnetwork
+
+  siteId:
+    type: integer
+    description: The SD-WAN site ID
+
+  v4Subnet:
+    type: string
+    description: The range of internal IPv4 addresses in CIDR notation
+
+  openTCPPorts:
+    type: array
+    default: [ "22" ]
+    description: The TCP ports that should be open (all hosts)
+
+  openUDPPorts:
+    type: array
+    description: The UDP ports that should be open (all hosts)
