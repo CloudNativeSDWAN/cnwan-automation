@@ -1,4 +1,5 @@
 resource "helm_release" "etcd_service_registry" {
+    depends_on = [kubernetes_namespace.this]
     chart = "etcd"
     name = var.helm_relese_name
     namespace = var.namespace
