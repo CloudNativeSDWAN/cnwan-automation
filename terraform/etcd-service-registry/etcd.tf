@@ -7,11 +7,11 @@ resource "helm_release" "etcd_service_registry" {
 
     values = [<<EOF
 auth:
-  rbac:
-    enabled: true
-    rootPassword: ${var.etcd_root_password}
-service:
-  type: LoadBalancer
+    rbac:
+        enabled: true
+        rootPassword: ${var.etcd_root_password}
+    service:
+        type: LoadBalancer
 EOF
     ]
 }
