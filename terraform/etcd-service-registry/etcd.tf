@@ -1,7 +1,7 @@
 resource "helm_release" "etcd_service_registry" {
     depends_on = [kubernetes_namespace.this]
     chart = "etcd"
-    name = var.helm_relese_name
+    name = var.helm_release_name
     namespace = var.namespace
     repository = "https://charts.bitnami.com/bitnami"
 
@@ -35,7 +35,7 @@ resource "kubernetes_pod" "etcd_client" {
 
             env {
                 name = "ETCDCTL_ENDPOINTS"
-                value = "${var.namespace}.${var.helm_relese_name}.svc.cluster.local:2379"
+                value = "${var.namespace}.${var.helm_release_name}.svc.cluster.local:2379"
             }
         }
 

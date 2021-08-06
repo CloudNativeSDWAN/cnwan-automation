@@ -8,7 +8,7 @@ variable "namespace" {
     default = "etcd-service-registry"
 }
 
-variable "helm_relese_name" {
+variable "helm_release_name" {
     type = string
     default = "etcd-service-registry"
 }
