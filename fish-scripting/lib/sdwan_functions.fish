@@ -248,7 +248,7 @@ function sdwan_vm_initial_config
 
     ci_create_user_data_sdwan $vm $gcp_ntp $gcp_mgmt_gateway $gcp_ctrl_gateway $gcp_pubi_gateway $gcp_bizi_gateway $gcp_vedge_svc_ip_mask $vbond_ip
 
-    gcp_vm_instance_enable_serial_port $gcp_zone $vm_name ^ /dev/null
+    gcp_vm_instance_enable_serial_port $gcp_zone $vm_name 2> /dev/null
 
     echo "[ℹ] Uploading initial configuration for $vm_name..."
     $script_dir/../../fish-scripting/lib/sdwan_expect-scripts/sdwan_initial_config.expect \
@@ -344,7 +344,7 @@ function sdwan_create_data_plane_vm
     set service_network (yq e ".sdwan.$vm_i.service_network" $cna_config_file)
     set service_ip (yq e ".sdwan.$vm_i.service_static_ip" $cna_config_file)
     # set vbond_vm_name (yq e ".sdwan.vbond.vm_name" $cna_config_file)
-    # set vbond_ip (gcloud compute instances describe $vbond_vm_name --project $gcp_project --zone $gcp_zone --format="value(networkInterfaces[1].accessConfigs.natIP)" ^ /dev/null)
+    # set vbond_ip (gcloud compute instances describe $vbond_vm_name --project $gcp_project --zone $gcp_zone --format="value(networkInterfaces[1].accessConfigs.natIP)" 2> /dev/null)
 
     ci_create_user_data_sdwan $vm_i $gcp_ntp \
         (yq e '.gcp.networks.[] | select(.name=="cnwan-mgmt") | .gateway' $cna_config_file) \
@@ -378,7 +378,7 @@ function sdwan_configure_data_plane_vm
     set external_ip (yq e ".sdwan.$vm_i.connect_ip" $cna_config_file)
     if test "$external_ip" = "null"
         set vm_zone (yq e ".sdwan.$vm_i.zone" $cna_config_file)
-        set external_ip (gcloud compute instances describe $vm_name --project $gcp_project --zone $vm_zone --format="value(networkInterfaces[0].accessConfigs.natIP)" ^ /dev/null)
+        set external_ip (gcloud compute instances describe $vm_name --project $gcp_project --zone $vm_zone --format="value(networkInterfaces[0].accessConfigs.natIP)" 2> /dev/null)
     end
 
     sdwan_install_certificate $vm_name $external_ip
@@ -390,7 +390,7 @@ function sdwan_configure_data_plane_vm
     for vm in $sdwan_ctrl_vms
         set vm_name (yq e ".sdwan.$vm.vm_name" $cna_config_file)
         set vm_name "$sdwan_naming_prefix-$vm_name"
-        set external_ip (gcloud compute instances describe $vm_name --project $gcp_project --zone $gcp_zone --format="value(networkInterfaces[0].accessConfigs.natIP)" ^ /dev/null)
+        set external_ip (gcloud compute instances describe $vm_name --project $gcp_project --zone $gcp_zone --format="value(networkInterfaces[0].accessConfigs.natIP)" 2> /dev/null)
         $sdwan_script_dir/sdwan_expect-scripts/sdwan_register_vedge.expect \
             $external_ip "$vm_name#" $chassis $serial $sdwan_org_name
     end
@@ -413,9 +413,9 @@ function sdwan_get_ctrl_external_ips
         set vm_name (yq e ".sdwan.$vm.vm_name" $cna_config_file)
         set vm_name "$sdwan_naming_prefix-$vm_name"
         if test "$vm" = "vbond"
-            set external_ip (gcloud compute instances describe $vm_name --project $gcp_project --zone $gcp_zone --format="value(networkInterfaces[1].accessConfigs.natIP)" ^ /dev/null)
+            set external_ip (gcloud compute instances describe $vm_name --project $gcp_project --zone $gcp_zone --format="value(networkInterfaces[1].accessConfigs.natIP)" 2> /dev/null)
         else
-            set external_ip (gcloud compute instances describe $vm_name --project $gcp_project --zone $gcp_zone --format="value(networkInterfaces[0].accessConfigs.natIP)" ^ /dev/null)
+            set external_ip (gcloud compute instances describe $vm_name --project $gcp_project --zone $gcp_zone --format="value(networkInterfaces[0].accessConfigs.natIP)" 2> /dev/null)
         end
         set sdwan_ctrl_ext_ips $sdwan_ctrl_ext_ips $external_ip
     end
@@ -427,7 +427,7 @@ function sdwan_get_edge_external_ips
         set vm_name (yq e ".sdwan.vedge[$idx].vm_name" $cna_config_file)
         set vm_name "$sdwan_naming_prefix-$vm_name"
         set zone (yq e ".sdwan.vedge[$idx].zone" $cna_config_file)
-        set external_ip (gcloud compute instances describe $vm_name --project $gcp_project --zone $zone --format="value(networkInterfaces[0].accessConfigs.natIP)" ^ /dev/null)
+        set external_ip (gcloud compute instances describe $vm_name --project $gcp_project --zone $zone --format="value(networkInterfaces[0].accessConfigs.natIP)" 2> /dev/null)
         set sdwan_edge_ext_ips $sdwan_edge_ext_ips $external_ip
     end
 end

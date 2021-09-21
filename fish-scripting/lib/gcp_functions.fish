@@ -49,7 +49,7 @@ function gcp_create_compute_image_error
 end
 
 function gcp_delete_compute_image
-    gcloud -q compute images delete $argv --project $gcp_project ^ /dev/null
+    gcloud -q compute images delete $argv --project $gcp_project 2> /dev/null
 end
 
 function gcp_delete_storage
