@@ -24,6 +24,26 @@ variable "ssh_key" {
   type        = string
   description = "SSH Public Key to be used to node login."
 }
+variable "k8s_version_policy_name" {
+  type        = string
+  description = "Name for the Kubernetes version policy"
+  default     = "iks-terraform-version"
+}
+variable "k8s_version" {
+  type        = string
+  description = "Kubernetes version"
+  default     = "1.19.5"
+}
+variable "instance_type" {
+  type        = string
+  description = "Name for the instance type used"
+  default     = "iks-terraform-instance-type"
+}
+variable "vc_name" {
+  type        = string
+  description = "vCenter policy name"
+  default     = "iks-terraform-vm-config"
+}
 variable "vc_target" {
   type        = string
   description = "vCenter host"
@@ -52,6 +72,11 @@ variable "vc_resources" {
   description = "vSphare resource pool"
   default     = ""
 }
+variable "ip_pool_name" {
+  type        = string
+  description = "A name for the IP pool"
+  default     = "iks-terraform-pool"
+}
 variable "ip_start" {
   type        = string
   description = "The start IP address for the IP pool"
@@ -75,6 +100,26 @@ variable "ntp_servers" {
 variable "dns_servers" {
   type        = list(string)
   description = "List of DNS servers"
+}
+variable "sysconfig_name" {
+  type        = string
+  description = "A name for the system/network configuration"
+  default     = "iks-terraform-sys-config-policy"
+}
+variable "runtime_policy_name" {
+  type        = string
+  description = "A name for the container runtime policy configuration"
+  default     = "iks-terraform-container-runtime-policy"
+}
+variable "k8s_netconfig_name" {
+  type        = string
+  description = "A name for the k8s internal network configuration"
+  default     = "iks-terraform-network-policy"
+}
+variable "trusted_registry_name" {
+  type        = string
+  description = "A name for the trusted registry configuration"
+  default     = "iks-terraform-trusted-registries"
 }
 variable "tags" {
   type    = list(map(string))
