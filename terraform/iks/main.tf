@@ -127,3 +127,8 @@ module "terraform-intersight-iks" {
   organization = var.organization
   tags         = var.tags
 }
+
+data "intersight_kubernetes_cluster" "iks-cluster" {
+  depends_on = [ module.terraform-intersight-iks.cluster_profile_moid ]
+  name       = var.cluster_name
+}
