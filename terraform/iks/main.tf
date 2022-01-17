@@ -26,17 +26,18 @@ module "terraform-intersight-iks" {
     load_balancers      = 2
   }
 
-  # Kubernetes version policy, only 1.19.5 is available now
-  version_policy = {
-    use_existing = false
-    name         = var.k8s_version_policy_name
-    version      = var.k8s_version
+  # Kubernetes version policy, only a few options from the 1.19.x train are
+  # available now
+  versionPolicy = {
+    useExisting    = false
+    policyName     = "${var.cluster_name}-version"
+    iksVersionName = var.k8s_version
   }
 
   # VMware instance configuration
   instance_type = {
     use_existing = false
-    name         = var.instance_type
+    name         = "${var.cluster_name}-instance-type"
     cpu          = 4
     memory       = 16386
     disk_size    = 40
@@ -46,7 +47,7 @@ module "terraform-intersight-iks" {
   infraConfigPolicy = {
     use_existing       = false
     platformType       = "esxi"
-    policyName         = var.vc_name
+    policyName         = "${var.cluster_name}-vm-config"
     description        = "vCenter Policy"
     targetName         = var.vc_target
     interfaces         = var.vc_portgroup
@@ -59,7 +60,7 @@ module "terraform-intersight-iks" {
   # IP Pool Information
   ip_pool = {
     use_existing        = false
-    name                = var.ip_pool_name
+    name                = "${var.cluster_name}-pool"
     ip_starting_address = var.ip_start
     ip_pool_size        = var.ip_pool_size
     ip_netmask          = var.ip_netmask
@@ -70,7 +71,7 @@ module "terraform-intersight-iks" {
   # Network Configuration Settings
   sysconfig = {
     use_existing = false
-    name         = var.sysconfig_name
+    name         = "${var.cluster_name}-sys-config-policy"
     domain_name  = "cisco.com"
     timezone     = "America/Los_Angeles"
     ntp_servers  = var.ntp_servers
@@ -81,7 +82,7 @@ module "terraform-intersight-iks" {
   # runtime_policy = {
   #   use_existing         = false
   #   create_new           = true
-  #   name                 = var.runtime_policy_name
+  #   name                 = "${var.cluster_name}-container-runtime-policy"
   #   http_proxy_protocol  = "http"
   #   http_proxy_hostname  = "proxy.esl.cisco.com"
   #   http_proxy_port      = 8080
@@ -94,7 +95,7 @@ module "terraform-intersight-iks" {
   # Kubernetes internal network configuration
   k8s_network = {
     use_existing = false
-    name         = var.k8s_netconfig_name
+    name         = "${var.cluster_name}-network-policy"
     pod_cidr     = "100.65.0.0/16"
     service_cidr = "100.64.0.0/16"
     cni          = "Calico"
@@ -103,23 +104,37 @@ module "terraform-intersight-iks" {
   tr_policy = {
     use_existing = false
     create_new   = false
-    name         = var.trusted_registry_name
+    name         = "${var.cluster_name}-trusted-registries"
   }
 
-  # IKS add-ons. Only two are available, both are recommended
-  addons_list = [{
-      addon_policy_name = "dashboard"
-      addon             = "kubernetes-dashboard"
-      description       = "K8s Dashboard Policy"
-      upgrade_strategy  = "AlwaysReinstall"
-      install_strategy  = "InstallOnly"
+  # IKS add-ons. The following three are available, comment unwanted
+  addons = [{
+      createNew       = true
+      #addonPolicyName = "${var.cluster_name}-addon-policy-dashboard"
+      addonPolicyName = "kubernetes-dashboard"
+      addonName       = "kubernetes-dashboard"
+      description     = "K8s Dashboard Policy"
+      #upgradeStrategy = "AlwaysReinstall"
+      #installStrategy = "InstallOnly"
     },
     {
-      addon_policy_name = "monitor"
-      addon             = "ccp-monitor"
-      description       = "Grafana Policy"
-      upgrade_strategy  = "AlwaysReinstall"
-      install_strategy  = "InstallOnly"
+      createNew       = true
+      #addonPolicyName = "${var.cluster_name}-addon-policy-monitor"
+      addonPolicyName = "ccp-monitor"
+      addonName       = "ccp-monitor"
+      description     = "Grafana Policy"
+      #upgradeStrategy = "UpgradeOnly"
+      #installStrategy = "InstallOnly"
+    },
+    {
+      createNew       = true
+      #addonPolicyName = "${var.cluster_name}-addon-policy-smm"
+      addonPolicyName = "smm"
+      addonName       = "smm"
+      description     = "Service Mesh Manager Policy"
+      #upgradeStrategy = "UpgradeOnly"
+      #installStrategy = "InstallOnly"
+      overrides       = yamlencode({ "demoApplication" : { "enabled" : true } })
     }
   ]
 
@@ -129,6 +144,12 @@ module "terraform-intersight-iks" {
 }
 
 data "intersight_kubernetes_cluster" "iks-cluster" {
-  depends_on = [ module.terraform-intersight-iks.cluster_profile_moid ]
+  depends_on = [ module.terraform-intersight-iks.k8s_cluster_moid ]
   name       = var.cluster_name
+}
+
+resource "local_file" "kube_config" {
+  content_base64  = data.intersight_kubernetes_cluster.iks-cluster.results[0].kube_config
+  filename        = "/tmp/kube_config"
+  file_permission = "0600"
 }
