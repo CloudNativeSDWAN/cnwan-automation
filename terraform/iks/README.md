@@ -24,4 +24,4 @@ This module creates all of the resources required for IKS.  Some customization i
 | Name | Version |
 |------|---------|
 | terraform | >=0.14.5 |
-| intersight | =1.0.11 |
+| intersight | >=1.0.19 |

@@ -110,8 +110,7 @@ module "terraform-intersight-iks" {
   # IKS add-ons. The following three are available, comment unwanted
   addons = [{
       createNew       = true
-      #addonPolicyName = "${var.cluster_name}-addon-policy-dashboard"
-      addonPolicyName = "kubernetes-dashboard"
+      addonPolicyName = "${var.cluster_name}-addon-policy-dashboard"
       addonName       = "kubernetes-dashboard"
       description     = "K8s Dashboard Policy"
       #upgradeStrategy = "AlwaysReinstall"
@@ -119,8 +118,7 @@ module "terraform-intersight-iks" {
     },
     {
       createNew       = true
-      #addonPolicyName = "${var.cluster_name}-addon-policy-monitor"
-      addonPolicyName = "ccp-monitor"
+      addonPolicyName = "${var.cluster_name}-addon-policy-monitor"
       addonName       = "ccp-monitor"
       description     = "Grafana Policy"
       #upgradeStrategy = "UpgradeOnly"
@@ -128,8 +126,7 @@ module "terraform-intersight-iks" {
     },
     {
       createNew       = true
-      #addonPolicyName = "${var.cluster_name}-addon-policy-smm"
-      addonPolicyName = "smm"
+      addonPolicyName = "${var.cluster_name}-addon-policy-smm"
       addonName       = "smm"
       description     = "Service Mesh Manager Policy"
       #upgradeStrategy = "UpgradeOnly"
