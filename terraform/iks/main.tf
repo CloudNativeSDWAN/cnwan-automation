@@ -38,9 +38,9 @@ module "terraform-intersight-iks" {
   instance_type = {
     use_existing = false
     name         = "${var.cluster_name}-instance-type"
-    cpu          = 4
-    memory       = 16386
-    disk_size    = 40
+    cpu          = 2
+    memory       = 4096
+    disk_size    = 10
   }
 
   # Infra Config Policy Information
@@ -115,23 +115,23 @@ module "terraform-intersight-iks" {
       description     = "K8s Dashboard Policy"
       #upgradeStrategy = "AlwaysReinstall"
       #installStrategy = "InstallOnly"
-    },
-    {
-      createNew       = true
-      addonPolicyName = "${var.cluster_name}-addon-policy-monitor"
-      addonName       = "ccp-monitor"
-      description     = "Grafana Policy"
-      #upgradeStrategy = "UpgradeOnly"
-      #installStrategy = "InstallOnly"
-    },
-    {
-      createNew       = true
-      addonPolicyName = "${var.cluster_name}-addon-policy-smm"
-      addonName       = "smm"
-      description     = "Service Mesh Manager Policy"
-      #upgradeStrategy = "UpgradeOnly"
-      #installStrategy = "InstallOnly"
-      overrides       = yamlencode({ "demoApplication" : { "enabled" : true } })
+    # },
+    # {
+    #   createNew       = true
+    #   addonPolicyName = "${var.cluster_name}-addon-policy-monitor"
+    #   addonName       = "ccp-monitor"
+    #   description     = "Grafana Policy"
+    #   #upgradeStrategy = "UpgradeOnly"
+    #   #installStrategy = "InstallOnly"
+    # },
+    # {
+    #   createNew       = true
+    #   addonPolicyName = "${var.cluster_name}-addon-policy-smm"
+    #   addonName       = "smm"
+    #   description     = "Service Mesh Manager Policy"
+    #   #upgradeStrategy = "UpgradeOnly"
+    #   #installStrategy = "InstallOnly"
+    #   overrides       = yamlencode({ "demoApplication" : { "enabled" : true } })
     }
   ]
 
