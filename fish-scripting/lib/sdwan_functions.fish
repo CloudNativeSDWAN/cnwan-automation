@@ -2,6 +2,8 @@
 #
 # Copyright (C) 2020, 2021 Cisco Systems, Inc.
 #
+# SPDX-License-Identifier: Apache-2.0
+#
 # @author  Lori Jakab <lojakab@cisco.com>
 
 set sdwan_script_dir (realpath (dirname (status -f)))

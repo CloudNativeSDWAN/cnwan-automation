@@ -2,6 +2,8 @@
 #
 # Copyright (C) 2021 Cisco Systems, Inc.
 #
+# SPDX-License-Identifier: Apache-2.0
+#
 # @author  Lori Jakab <lojakab@cisco.com>
 
 
