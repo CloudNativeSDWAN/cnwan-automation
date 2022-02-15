@@ -79,18 +79,18 @@ module "terraform-intersight-iks" {
   }
 
   # Optional Proxy Configuration for Docker
-  # runtime_policy = {
-  #   use_existing         = false
-  #   create_new           = true
-  #   name                 = "${var.cluster_name}-container-runtime-policy"
-  #   http_proxy_protocol  = "http"
-  #   http_proxy_hostname  = "proxy.esl.cisco.com"
-  #   http_proxy_port      = 8080
+  runtime_policy = {
+    use_existing         = false
+    create_new           = true
+    name                 = "${var.cluster_name}-container-runtime-policy"
+    http_proxy_protocol  = "http"
+    http_proxy_hostname  = "proxy.esl.cisco.com"
+    http_proxy_port      = 8080
 
-  #   https_proxy_protocol = "http"
-  #   https_proxy_hostname = "proxy.esl.cisco.com"
-  #   https_proxy_port     = 8080
-  # }
+    https_proxy_protocol = "http"
+    https_proxy_hostname = "proxy.esl.cisco.com"
+    https_proxy_port     = 8080
+  }
 
   # Kubernetes internal network configuration
   k8s_network = {
