@@ -9,9 +9,12 @@ YAML file.
 
 The best way to use this project is to include it as a Git module in your
 project, and take advantage of the functions exposed in the [lib/](./lib)
-directory. The [sdwan_deploy.fish](./sdwan_deploy.fish) script is provided as
-an example, it takes advantage of those functions to deploy a Cisco SD-WAN,
-based on configuration in the [cnwan.yaml.example](./cnwan.yaml.example) file.
+directory.
+
+Example usage is provided in the [deploy-cnwan](./deploy-cnwan/) directory.
+The [sdwan_deploy.fish](./deploy-cnwan/sdwan_deploy.fish) script takes
+advantage of those functions to deploy a Cisco SD-WAN, based on configuration
+in the [cnwan.yaml.example](./deploy-cnwan/cnwan.yaml.example) file.
 It is still a work in progress, some manual steps are still required, but it
 automates a big part of deployment.
 
@@ -25,6 +28,7 @@ customize the configuration file. At a minimum replace the `<GCP_PROJECT>`,
 for your setup, and point to the directory with the SD-WAN images. Then run
 the script, with the path to your configuration file as the first argument:
 
+    cd deploy-cnwan
     ./sdwan_deploy.fish your-cnwan-config.yaml
 
 *The code is developed and tested on macOS with Homebrew. The intent is to use
