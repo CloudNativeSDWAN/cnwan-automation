@@ -1,0 +1,11 @@
+local:
+    tempdir: /tmp
+gcp:
+    project: <GCP_PROJECT>
+    zone: <GCP_ZONE>
+    image_label: cisco-sdwan
+sdwan:
+    version: 20.8.1
+    iosxe_version: 17.08.01a
+    # These paths are relative to current user's home directory
+    image_path: Downloads/Viptela
