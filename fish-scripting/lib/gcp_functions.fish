@@ -121,10 +121,10 @@ function gcp_get_nic_gateway
     set vm_name $argv[2]
     set nic_idx $argv[3]
 
-    set nic_subnet_scope (string split / (gcloud compute instances describe $vm_name --zone $zone --format="value(networkInterfaces[$nic_idx].subnetwork.scope())"))
+    set nic_subnet_scope (string split / (gcloud compute instances describe $vm_name --zone $zone --format="value(networkInterfaces[$nic_idx].subnetwork.scope())" --project $gcp_project))
     set region $nic_subnet_scope[1]
     set subnet $nic_subnet_scope[3]
-    set subnet_gw (gcloud compute networks subnets describe $subnet --region $region --format="value(gatewayAddress)")
+    set subnet_gw (gcloud compute networks subnets describe $subnet --region $region --format="value(gatewayAddress)" --project $gcp_project)
     echo "$subnet_gw"
 end
 
@@ -133,10 +133,10 @@ function gcp_get_nic_masklen
     set vm_name $argv[2]
     set nic_idx $argv[3]
 
-    set nic_subnet_scope (string split / (gcloud compute instances describe $vm_name --zone $zone --format="value(networkInterfaces[$nic_idx].subnetwork.scope())"))
+    set nic_subnet_scope (string split / (gcloud compute instances describe $vm_name --zone $zone --format="value(networkInterfaces[$nic_idx].subnetwork.scope())" --project $gcp_project))
     set region $nic_subnet_scope[1]
     set subnet $nic_subnet_scope[3]
-    set subnet_cidr (gcloud compute networks subnets describe $subnet --region $region --format="value(ipCidrRange)")
+    set subnet_cidr (gcloud compute networks subnets describe $subnet --region $region --format="value(ipCidrRange)" --project $gcp_project)
     set subnet_mask (string split / $subnet_cidr)[2]
     echo "$subnet_mask"
 end
