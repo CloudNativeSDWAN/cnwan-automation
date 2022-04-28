@@ -2,7 +2,7 @@ info:
   title: Network Template
   author: Lori Jakab
   description: Creates a custom type network and associated firewall rule
-  version: 1.0
+  version: 1.1
 
 required:
 - networkName
@@ -29,11 +29,21 @@ properties:
     type: string
     description: The range of internal IPv4 addresses in CIDR notation
 
+  fwRulePriority:
+    type: integer
+    default: 500
+    description: The priority value for the firewall rule
+
+  allowedSourceRanges:
+    type: array
+    default: [ "0.0.0.0/0" ]
+    description: The list of source addresses ranges to allow in firewall
+
   openTCPPorts:
     type: array
     default: [ "22" ]
-    description: The TCP ports that should be open (all hosts)
+    description: The TCP ports that should be open for allowedSourceRanges
 
   openUDPPorts:
     type: array
-    description: The UDP ports that should be open (all hosts)
+    description: The UDP ports that should be open for allowedSourceRanges

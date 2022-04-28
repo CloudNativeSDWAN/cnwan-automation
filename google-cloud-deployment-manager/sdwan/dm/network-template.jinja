@@ -17,7 +17,8 @@ resources:
   type: compute.v1.firewall
   properties:
     network: $(ref.{{ properties["networkName"] }}.selfLink)
-    sourceRanges: ["0.0.0.0/0"]
+    priority: {{ properties["fwRulePriority"] }}
+    sourceRanges: {{ properties["allowedSourceRanges"] }}
     allowed:
     - IPProtocol: TCP
       ports: {{ properties["openTCPPorts"] }}
