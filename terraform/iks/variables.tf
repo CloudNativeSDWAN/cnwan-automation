@@ -27,7 +27,7 @@ variable "ssh_key" {
 variable "k8s_version" {
   type        = string
   description = "Kubernetes version"
-  default     = "1.20.14-iks.0"
+  default     = "1.21.11-iks.2"
 }
 variable "vc_target" {
   type        = string
